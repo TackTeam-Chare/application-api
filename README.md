@@ -19,17 +19,20 @@
 
 database named `employee_management`
 
-## Sample `curl` for Testing (POST)
+## Sample `curl` for Testing
 
-# GET All 
-curl --request GET 'http://localhost:8080/api/application'
+# GET All Applications
+curl --request GET 'http://localhost:8080/api/application' \
+-H "Authorization: Bearer my-secret-token"
 
-# GET By ID
-curl --request GET 'http://localhost:8080/api/application/{appId}'
+# GET Application By ID
+curl --request GET 'http://localhost:8080/api/application/{appId}' \
+-H "Authorization: Bearer my-secret-token"
 
-# Create New
+# Create New Application
 curl --request POST 'http://localhost:8080/api/application' \
---header 'Content-Type: application/json' \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer my-secret-token" \
 --data-raw '{
 "productType": "CreditCard",
 "productProgram": "Standard",
@@ -39,9 +42,10 @@ curl --request POST 'http://localhost:8080/api/application' \
 "isVip": true
 }'
 
-# Update
+# Update Application
 curl --request PUT 'http://localhost:8080/api/application/{appId}' \
---header 'Content-Type: application/json' \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer my-secret-token" \
 --data-raw '{
 "productType": "CreditCard",
 "productProgram": "Platinum",
@@ -51,5 +55,14 @@ curl --request PUT 'http://localhost:8080/api/application/{appId}' \
 "isVip": false
 }'
 
-# DELETE By ID
-curl --request DELETE 'http://localhost:8080/api/application/{appId}'
+# DELETE Application By ID
+curl --request DELETE 'http://localhost:8080/api/application/{appId}' \
+-H "Authorization: Bearer my-secret-token"
+
+# DELETE All Applications
+curl --request DELETE 'http://localhost:8080/api/application' \
+-H "Authorization: Bearer my-secret-token"
+
+# DELETE All Applications with Confirmation
+curl --request DELETE 'http://localhost:8080/api/application?confirm=true' \
+-H "Authorization: Bearer my-secret-token"

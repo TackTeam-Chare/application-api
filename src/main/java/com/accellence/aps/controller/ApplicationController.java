@@ -2,6 +2,7 @@ package com.accellence.aps.controller;
 
 import com.accellence.aps.dto.ApplicationRequestDTO;
 import com.accellence.aps.dto.ApplicationResponseDTO;
+import com.accellence.aps.dto.ResponseWrapper;
 import com.accellence.aps.service.ApplicationService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -23,35 +24,51 @@ public class ApplicationController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ApplicationResponseDTO>> getAllApplications() {
+    public ResponseEntity<ResponseWrapper<List<ApplicationResponseDTO>>> getAllApplications() {
         List<ApplicationResponseDTO> applications = applicationService.getAllApplications();
-        return ResponseEntity.ok(applications);
+        return ResponseEntity.ok(ResponseWrapper.success("Applications retrieved successfully", applications));
     }
 
     @GetMapping("/{appId}")
-    public ResponseEntity<ApplicationResponseDTO> getApplicationById(@PathVariable UUID appId) {
+    public ResponseEntity<ResponseWrapper<ApplicationResponseDTO>> getApplicationById(@PathVariable UUID appId) {
         ApplicationResponseDTO application = applicationService.getApplicationById(appId);
-        return ResponseEntity.ok(application);
+        return ResponseEntity.ok(ResponseWrapper.success("Application retrieved successfully", application));
     }
 
     @PostMapping
-    public ResponseEntity<ApplicationResponseDTO> createApplication(
+    public ResponseEntity<ResponseWrapper<ApplicationResponseDTO>> createApplication(
             @Valid @RequestBody ApplicationRequestDTO applicationRequestDTO) {
         ApplicationResponseDTO createdApplication = applicationService.createApplication(applicationRequestDTO);
-        return new ResponseEntity<>(createdApplication, HttpStatus.CREATED);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(ResponseWrapper.success("Application created successfully", createdApplication));
     }
 
     @PutMapping("/{appId}")
-    public ResponseEntity<ApplicationResponseDTO> updateApplication(
+    public ResponseEntity<ResponseWrapper<ApplicationResponseDTO>> updateApplication(
             @PathVariable UUID appId,
             @Valid @RequestBody ApplicationRequestDTO applicationRequestDTO) {
         ApplicationResponseDTO updatedApplication = applicationService.updateApplication(appId, applicationRequestDTO);
-        return ResponseEntity.ok(updatedApplication);
+        return ResponseEntity.ok(ResponseWrapper.success("Application updated successfully", updatedApplication));
     }
 
     @DeleteMapping("/{appId}")
-    public ResponseEntity<Void> deleteApplication(@PathVariable UUID appId) {
+    public ResponseEntity<ResponseWrapper<Void>> deleteApplication(@PathVariable UUID appId) {
         applicationService.deleteApplication(appId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity
+                .ok(ResponseWrapper.success("Application deleted successfully", null));
     }
+
+        @DeleteMapping
+        public ResponseEntity<ResponseWrapper<Void>> deleteAllApplications(
+                @RequestParam(value = "confirm", defaultValue = "false") boolean confirm) {
+            if (!confirm) {
+                return ResponseEntity
+                        .badRequest()
+                        .body(ResponseWrapper.error("Please confirm this action by adding '?confirm=true' to your request"));
+            }
+            applicationService.deleteAllApplications();
+            return ResponseEntity
+                    .ok(ResponseWrapper.success("All applications deleted successfully", null));
+        }
 }

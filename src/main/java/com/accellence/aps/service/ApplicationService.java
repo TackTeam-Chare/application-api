@@ -17,4 +17,6 @@ public interface ApplicationService {
     ApplicationResponseDTO updateApplication(UUID appId, ApplicationRequestDTO applicationRequestDTO);
     
     void deleteApplication(UUID appId);
+    
+    void deleteAllApplications();
 }

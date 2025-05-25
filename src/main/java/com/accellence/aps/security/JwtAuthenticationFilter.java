@@ -7,6 +7,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -14,16 +16,19 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.Collections;
 
-/**
- * checks valid API token.
- */
-
 @Component
-public class TokenAuthenticationFilter extends OncePerRequestFilter {
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";
-    private static final String EXPECTED_TOKEN = "my-secret-token"; // Static token
+    
+    private final JwtUtil jwtUtil;
+    private final UserDetailsService userDetailsService;
+
+    public JwtAuthenticationFilter(JwtUtil jwtUtil, UserDetailsService userDetailsService) {
+        this.jwtUtil = jwtUtil;
+        this.userDetailsService = userDetailsService;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -31,13 +36,20 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         
         String token = getTokenFromRequest(request);
         
-        if (StringUtils.hasText(token) && isValidToken(token)) {
-            // Create authentication object with "USER" role
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                "api-user", null, Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
+        if (StringUtils.hasText(token) && jwtUtil.isTokenValid(token)) {
+            String username = jwtUtil.extractUsername(token);
+            String role = jwtUtil.extractRole(token);
             
-            // Set the authentication in the SecurityContext
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                
+                if (jwtUtil.validateToken(token, userDetails)) {
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                        userDetails, null, Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role)));
+                    
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
+            }
         }
         
         filterChain.doFilter(request, response);
@@ -49,10 +61,5 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
             return bearerToken.substring(BEARER_PREFIX.length());
         }
         return null;
-    }
-    
-    private boolean isValidToken(String token) {
-        // Simple validation: check if token matches the expected static token
-        return EXPECTED_TOKEN.equals(token);
     }
 }

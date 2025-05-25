@@ -7,6 +7,7 @@
 - Spring Boot DevTools
 - Gradle build system
 - Java 17
+- JWT Authentication
 
 
 ### Prerequisites
@@ -19,50 +20,16 @@
 
 database named `employee_management`
 
-## Sample `curl` for Testing
+### Authentication
 
-# GET All Applications
-curl --request GET 'http://localhost:8080/api/application' \
--H "Authorization: Bearer my-secret-token"
+This API uses JWT for authentication. Only ADMIN users can access the API endpoints.
 
-# GET Application By ID
-curl --request GET 'http://localhost:8080/api/application/{appId}' \
--H "Authorization: Bearer my-secret-token"
+#### Login to get JWT token:
 
-# Create New Application
-curl --request POST 'http://localhost:8080/api/application' \
+```bash
+curl --request POST 'http://localhost:8080/api/auth/login' \
 -H "Content-Type: application/json" \
--H "Authorization: Bearer my-secret-token" \
 --data-raw '{
-"productType": "CreditCard",
-"productProgram": "Standard",
-"cardType": "Visa",
-"campaignCode": "CAMP001",
-"appStatus": "PENDING",
-"isVip": true
+  "username": "admin",
+  "password": "admin123"
 }'
-
-# Update Application
-curl --request PUT 'http://localhost:8080/api/application/{appId}' \
--H "Content-Type: application/json" \
--H "Authorization: Bearer my-secret-token" \
---data-raw '{
-"productType": "CreditCard",
-"productProgram": "Platinum",
-"cardType": "MasterCard",
-"campaignCode": "CAMP002",
-"appStatus": "APPROVED",
-"isVip": false
-}'
-
-# DELETE Application By ID
-curl --request DELETE 'http://localhost:8080/api/application/{appId}' \
--H "Authorization: Bearer my-secret-token"
-
-# DELETE All Applications
-curl --request DELETE 'http://localhost:8080/api/application' \
--H "Authorization: Bearer my-secret-token"
-
-# DELETE All Applications with Confirmation
-curl --request DELETE 'http://localhost:8080/api/application?confirm=true' \
--H "Authorization: Bearer my-secret-token"

@@ -14,14 +14,14 @@ public class DataInitializer {
     public CommandLineRunner initData(AdminRepository adminRepository, PasswordEncoder passwordEncoder) {
         return args -> {
             // Create Admin User If It Doesn't Exist
-            if (adminRepository.findByUsername("admin").isEmpty()) {
+            if (adminRepository.findByUsername("admin_test_exam").isEmpty()) {
                 Admin admin = new Admin();
-                admin.setUsername("admin");
+                admin.setUsername("admin_test_exam");
                 admin.setPassword(passwordEncoder.encode("admin123"));
                 admin.setRole("ADMIN");
                 adminRepository.save(admin);
                 
-                System.out.println("Default admin user created with username: admin and password: admin123");
+                System.out.println("Default admin user created with username: admin_test_exam and password: admin123");
             }
         };
     }

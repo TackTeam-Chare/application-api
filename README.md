@@ -18,7 +18,7 @@
 
 ### Database Setup
 
-database named `employee_management`
+database named `db-aps-exam`
 
 ### Authentication
 

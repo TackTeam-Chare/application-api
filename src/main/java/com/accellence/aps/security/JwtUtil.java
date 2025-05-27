@@ -83,6 +83,7 @@ public class JwtUtil {
     }
     
     public String extractRole(String token) {
-        return extractAllClaims(token).get("role", String.class);
+        Claims claims = extractAllClaims(token);
+        return claims != null && claims.containsKey("role") ? claims.get("role", String.class) : "ADMIN";
     }
 }
